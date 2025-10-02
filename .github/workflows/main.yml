@@ -1,0 +1,27 @@
+name: Deploy dbt project
+on: 
+  push:
+    branches:
+      - 'demo'
+permissions:
+  id-token: write # Required for OIDC token generation
+  contents: read
+  
+jobs:
+  dbt-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repo
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Snowflake Cli
+        uses: snowflakedb/snowflake-cli-action@v2.0
+        with:
+          use-oidc: true
+          cli-version: "3.12"
+      - name: test connection
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+        run: |
+          snow connection test -x
